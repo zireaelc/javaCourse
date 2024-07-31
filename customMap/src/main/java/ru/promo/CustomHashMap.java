@@ -212,7 +212,7 @@ public class CustomHashMap <K, V> implements Map<K, V> {
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-        Set<Entry<K, V>> entries = new HashSet<>();
+        Set<Map.Entry<K, V>> entries = new HashSet<>();
         for (int i = 0; i < capacity; i++) {
             locks[i].readLock().lock();
             try {
@@ -223,7 +223,6 @@ public class CustomHashMap <K, V> implements Map<K, V> {
                 locks[i].readLock().unlock();
             }
         }
-        // return entries;      решить, что сделать с возвращаемым типом
-        return null;
+        return entries;
     }
 }
