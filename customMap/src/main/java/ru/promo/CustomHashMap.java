@@ -47,7 +47,9 @@ public class CustomHashMap <K, V> implements Map<K, V> {
     }
 
     private int getIndex(Object key) {
-        return key.hashCode() % capacity;
+        int hash = key.hashCode();
+        int index = hash % capacity;
+        return index < 0 ? index + capacity : index;
     }
 
     @Override
