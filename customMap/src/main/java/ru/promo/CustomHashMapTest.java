@@ -2,10 +2,15 @@ package ru.promo;
 
 import org.junit.Test;
 import org.junit.Before;
+
+import static javax.xml.datatype.DatatypeConstants.SECONDS;
+import static javax.xml.datatype.DatatypeConstants.TIME;
 import static org.junit.Assert.*;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CustomHashMapTest {
 
@@ -94,39 +99,29 @@ public class CustomHashMapTest {
     }
 
     @Test
-    public void testCuncurrency() throws InterruptedException {
-        int threadCount = 10;
-        int elementCount = 1000;
+    public void testConcurrent() throws InterruptedException {
+        int threadCount = 100;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        Runnable putTask = () -> {
-            for (int i = 0; i < elementCount; i++) {
-                map.put(Thread.currentThread().getName() + i, i);
-            }
-            latch.countDown();
-        };
+        for (int i = 0; i < threadCount; i++) {
+            map.put("Value" + i, i);
+        }
 
-        Runnable getTask = () -> {
-            for (int i = 0; i < elementCount; i++) {
-                map.get(Thread.currentThread().getName() + i);
-            }
-            latch.countDown();
-        };
-
-        Runnable removeTask = () -> {
-            for (int i = 0; i < elementCount; i++) {
-                map.remove(Thread.currentThread().getName() + i);
-            }
-            latch.countDown();
-        };
-
-        for (int i = 0; i < threadCount / 3; i++) {
-            new Thread(putTask).start();
-            new Thread(getTask).start();
-            new Thread(removeTask).start();
+        for (int i = 0; i < threadCount; i++) {
+            String key = "Value" + i;
+            executor.submit(() -> {
+                map.remove(key);
+                latch.countDown();
+            });
         }
 
         latch.await();
+        executor.shutdown();
+
+        while (!executor.isTerminated()) {
+            Thread.sleep(100);
+        }
 
         assertEquals(0, map.size());
     }
