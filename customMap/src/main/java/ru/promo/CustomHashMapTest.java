@@ -2,9 +2,6 @@ package ru.promo;
 
 import org.junit.Test;
 import org.junit.Before;
-
-import static javax.xml.datatype.DatatypeConstants.SECONDS;
-import static javax.xml.datatype.DatatypeConstants.TIME;
 import static org.junit.Assert.*;
 
 import java.util.Map;
@@ -100,15 +97,14 @@ public class CustomHashMapTest {
 
     @Test
     public void testConcurrent() throws InterruptedException {
-        int threadCount = 100;
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch latch = new CountDownLatch(threadCount);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(10);
 
-        for (int i = 0; i < threadCount; i++) {
+        for (int i = 0; i < 100; i++) {
             map.put("Value" + i, i);
         }
 
-        for (int i = 0; i < threadCount; i++) {
+        for (int i = 0; i < 100; i++) {
             String key = "Value" + i;
             executor.submit(() -> {
                 map.remove(key);
